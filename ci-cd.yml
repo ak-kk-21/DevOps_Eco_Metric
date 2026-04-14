@@ -1,0 +1,77 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["**"]        # Run tests on every branch push
+  pull_request:
+    branches: [main]        # Run tests on every PR targeting main
+
+jobs:
+  # ── Job 1: Test & Static Analysis ──────────────────────────────────────────
+  test:
+    name: Test & Analyse
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # SonarCloud needs full history for blame data
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: pip install poetry==1.8.3
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-ansi
+
+      - name: Run tests with coverage
+        run: poetry run pytest
+        # pytest is configured in pyproject.toml to:
+        #   - output XML coverage to coverage.xml
+        #   - fail if coverage < 80%
+
+      - name: SonarCloud scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        # Sonar config lives in sonar-project.properties
+
+  # ── Job 2: Build & Deploy (main branch only) ───────────────────────────────
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    needs: test                         # Only runs if test job passes
+    if: github.ref == 'refs/heads/main' # Only runs on merges to main
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/eco-metric-api:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/eco-metric-api:${{ github.sha }}
+
+      - name: Trigger Render deploy
+        run: |
+          curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            --fail
+        # RENDER_DEPLOY_HOOK_URL: found in Render dashboard → your service → Settings → Deploy Hook
