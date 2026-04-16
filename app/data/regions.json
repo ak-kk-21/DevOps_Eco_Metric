@@ -1,0 +1,19 @@
+{
+  "us-east-1": { "name": "N. Virginia, USA", "gco2_per_kwh": 386, "provider": "AWS" },
+  "us-east-2": { "name": "Ohio, USA", "gco2_per_kwh": 410, "provider": "AWS" },
+  "us-west-1": { "name": "N. California, USA", "gco2_per_kwh": 207, "provider": "AWS" },
+  "us-west-2": { "name": "Oregon, USA", "gco2_per_kwh": 139, "provider": "AWS" },
+  "eu-west-1": { "name": "Ireland", "gco2_per_kwh": 316, "provider": "AWS" },
+  "eu-central-1": { "name": "Frankfurt, Germany", "gco2_per_kwh": 338, "provider": "AWS" },
+  "eu-north-1": { "name": "Stockholm, Sweden", "gco2_per_kwh": 8, "provider": "AWS" },
+  "ap-southeast-1": { "name": "Singapore", "gco2_per_kwh": 408, "provider": "AWS" },
+  "ap-south-1": { "name": "Mumbai, India", "gco2_per_kwh": 708, "provider": "AWS" },
+  "ap-northeast-1": { "name": "Tokyo, Japan", "gco2_per_kwh": 506, "provider": "AWS" },
+  "ap-east-1": { "name": "Hong Kong", "gco2_per_kwh": 599, "provider": "AWS" },
+  "ca-central-1": { "name": "Canada Central", "gco2_per_kwh": 130, "provider": "AWS" },
+  "sa-east-1": { "name": "São Paulo, Brazil", "gco2_per_kwh": 74, "provider": "AWS" },
+  "us-central1": { "name": "Iowa, USA", "gco2_per_kwh": 357, "provider": "GCP" },
+  "europe-west1": { "name": "Belgium", "gco2_per_kwh": 149, "provider": "GCP" },
+  "europe-north1": { "name": "Finland", "gco2_per_kwh": 26, "provider": "GCP" },
+  "asia-south1": { "name": "Mumbai, India", "gco2_per_kwh": 723, "provider": "GCP" }
+}
