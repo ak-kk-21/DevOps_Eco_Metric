@@ -2,25 +2,27 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
 
         stage('Install Dependencies') {
             steps {
-                bat 'poetry install --no-interaction'
+                bat 'pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'poetry run pytest tests/ --cov=app --cov-report=xml --cov-report=term -v'
+                bat '''
+                    pytest tests/ ^
+                    --cov=app ^
+                    --cov-report=xml ^
+                    --cov-report=term ^
+                    --junitxml=test-results/results.xml ^
+                    -v
+                '''
             }
             post {
                 always {
-                    junit allowEmptyResults: true, testResults: '**/test-results/*.xml'
+                    junit allowEmptyResults: true, testResults: 'test-results/results.xml'
                 }
             }
         }
