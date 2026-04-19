@@ -3,6 +3,8 @@ main.py
 FastAPI application entry point. Defines all routes.
 Business logic lives in calculator.py — this file only handles HTTP concerns.
 """
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
@@ -27,6 +29,13 @@ app = FastAPI(
         "url": "https://github.com/your-username/eco-metric-api",
     },
     license_info={"name": "MIT"},
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ---------------------------------------------------------------------------
