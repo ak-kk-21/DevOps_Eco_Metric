@@ -1,15 +1,19 @@
 pipeline {
     agent any
 
+    environment {
+        PYTHON  = 'C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
+        PIP     = 'C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\pip.exe'
+    }
+
     stages {
 
         stage('Install Dependencies') {
             steps {
-                bat 'python -m pip install -r requirements.txt'
+                bat '"%PIP%" install -r requirements.txt'
             }
         }
-
-        stage('Run Tests') {
+stage('Run Tests') {
             steps {
                 bat '''
                     pytest tests/ ^
