@@ -9,14 +9,12 @@ pipeline {
     stages {
 
         stage('Setup Virtual Environment') {
-            steps {
-                bat '''
-                "%PYTHON%" -m venv %VENV% && ^
-                %VENV%\\Scripts\\python.exe -m pip install --upgrade pip && ^
-                %VENV%\\Scripts\\python.exe -m pip install -r requirements.txt
-                '''
-            }
-        }
+    steps {
+        bat '"%PYTHON%" -m venv %VENV%'
+        bat '%VENV%\\Scripts\\python.exe -m pip install --upgrade pip'
+        bat '%VENV%\\Scripts\\python.exe -m pip install -r requirements.txt'
+    }
+}
 
         stage('Run Tests') {
             steps {
@@ -36,6 +34,7 @@ pipeline {
             }
         }
 
+        
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t eco-metric-api:latest .'
