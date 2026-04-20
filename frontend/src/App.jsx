@@ -24,7 +24,7 @@ function App() {
   const fetchFactors = async () => {
     try {
       console.log('Fetching factors from backend...');
-      const response = await fetch('http://localhost:8000/factors');
+      const response = await fetch('http://localhost:8001/factors');
       const data = await response.json();
       
       // Convert hardware object to array - keep the name as the key
@@ -84,7 +84,7 @@ function App() {
       
       console.log('Sending calculation request:', payload);
       
-      const response = await fetch('http://localhost:8000/calculate/task', {
+      const response = await fetch('http://localhost:8001/calculate/task', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -249,7 +249,7 @@ function App() {
             marginBottom: '20px',
             border: '1px solid #fde68a'
           }}>
-            ⚠️ Cannot connect to backend. Make sure it's running on http://localhost:8000
+            ⚠️ Cannot connect to backend. Make sure it's running on http://localhost:8001
           </div>
         )}
 
