@@ -40,8 +40,8 @@ pipeline {
 
         stage('Run Backend Container') {
             steps {
-                bat 'docker stop eco-metric 2>nul || echo done'
-                bat 'docker rm eco-metric 2>nul || echo done'
+                bat 'docker stop eco-metric 2>nul || exit 0'
+                bat 'docker rm eco-metric 2>nul || exit 0'
                 bat 'docker run -d -p 8001:8000 --name eco-metric eco-metric-api:latest'
             }
         }
@@ -54,8 +54,8 @@ pipeline {
 
         stage('Run Frontend Container') {
             steps {
-                bat 'docker stop eco-frontend 2>nul || echo done'
-                bat 'docker rm eco-frontend 2>nul || echo done'
+                bat 'docker stop eco-frontend 2>nul || exit 0'
+                bat 'docker rm eco-frontend 2>nul || exit 0'
                 bat 'docker run -d -p 3000:80 --name eco-frontend eco-metric-frontend:latest'
             }
         }
