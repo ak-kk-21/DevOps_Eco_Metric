@@ -1,36 +1,28 @@
-# ── Stage 1: build ──────────────────────────────────────────────────────────
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install Poetry
-RUN pip install --no-cache-dir poetry==1.8.3
+# install system deps (important for numpy, scipy, etc.)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy dependency files first (layer cache: only re-runs if these change)
+# install poetry
+RUN pip install poetry==1.8.3
+
+# copy dependency files first (for caching)
 COPY pyproject.toml poetry.lock* ./
 
-# Install production dependencies only (no dev tools in the final image)
-RUN poetry config virtualenvs.in-project true \
+# install ONLY production dependencies
+RUN poetry config virtualenvs.create false \
     && poetry install --only main --no-interaction --no-ansi
 
-# ── Stage 2: runtime ─────────────────────────────────────────────────────────
-FROM python:3.11-slim AS runtime
+# copy app
+COPY app ./app
 
-WORKDIR /app
-
-# Copy the virtual environment built in stage 1
-COPY --from=builder /app/.venv /app/.venv
-
-# Copy application source
-COPY app/ ./app/
-
-# Activate the venv by prepending it to PATH
-ENV PATH="/app/.venv/bin:$PATH"
-
-# Render / Cloud Run inject PORT at runtime; default to 8000 locally
+# default port
 ENV PORT=8000
 
-EXPOSE ${PORT}
+EXPOSE 8000
 
-# Run with uvicorn; --host 0.0.0.0 is required inside a container
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

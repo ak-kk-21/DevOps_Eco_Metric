@@ -7,17 +7,23 @@ pipeline {
 
     stages {
 
-        stage('Setup Environment') {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Setup Python') {
             steps {
                 bat '"%PYTHON%" -m venv venv'
                 bat 'venv\\Scripts\\python.exe -m pip install --upgrade pip --quiet'
-                bat 'venv\\Scripts\\python.exe -m pip install fastapi uvicorn pydantic pytest pytest-cov httpx --quiet'
+                bat 'venv\\Scripts\\python.exe -m pip install -r requirements.txt --quiet'
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'venv\\Scripts\\python.exe -m pytest tests/ --cov=app --cov-report=xml --cov-report=term -v --junitxml=test-results/results.xml'
+                bat 'venv\\Scripts\\python.exe -m pytest tests --cov=app --cov-report=xml --junitxml=test-results/results.xml -v'
             }
             post {
                 always {
@@ -26,27 +32,41 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Backend Image') {
             steps {
                 bat 'docker build -t eco-metric-api:latest .'
             }
         }
 
-        stage('Run Container (Staging)') {
+        stage('Run Backend Container') {
             steps {
-                bat 'docker stop eco-metric-staging 2>nul || echo done'
-                bat 'docker rm eco-metric-staging 2>nul || echo done'
-                bat 'docker run -d -p 8001:8000 --name eco-metric-staging eco-metric-api:latest'
+                bat 'docker stop eco-metric 2>nul || echo done'
+                bat 'docker rm eco-metric 2>nul || echo done'
+                bat 'docker run -d -p 8001:8000 --name eco-metric eco-metric-api:latest'
+            }
+        }
+
+        stage('Build Frontend Image') {
+            steps {
+                bat 'docker build -t eco-metric-frontend:latest ./frontend'
+            }
+        }
+
+        stage('Run Frontend Container') {
+            steps {
+                bat 'docker stop eco-frontend 2>nul || echo done'
+                bat 'docker rm eco-frontend 2>nul || echo done'
+                bat 'docker run -d -p 3000:80 --name eco-frontend eco-metric-frontend:latest'
             }
         }
     }
 
     post {
         success {
-            echo 'DONE — app running on http://localhost:8001/docs'
+            echo 'SUCCESS — Backend: http://localhost:8001/docs | Frontend: http://localhost:3000'
         }
         failure {
-            echo 'Pipeline failed — check logs above.'
+            echo 'FAILED — check logs above'
         }
     }
 }
