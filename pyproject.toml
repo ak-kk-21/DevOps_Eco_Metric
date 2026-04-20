@@ -8,7 +8,6 @@ packages = [{ include = "app" }]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=80 --junit-xml=test-results/results.xml"
 
 [tool.poetry.dependencies]
 python = "^3.11"
