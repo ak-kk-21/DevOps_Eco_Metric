@@ -2,26 +2,31 @@ pipeline {
     agent any
 
     environment {
-        PYTHON  = 'C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
-        PIP     = 'C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\pip.exe'
+        PYTHON = 'C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python313\\python.exe'
+        VENV   = 'venv'
     }
 
     stages {
 
-        stage('Install Dependencies') {
-            steps {
-                bat '"%PIP%" install -r requirements.txt'
-            }
-        }
-stage('Run Tests') {
+        stage('Setup Virtual Environment') {
             steps {
                 bat '''
-                    pytest tests/ ^
-                    --cov=app ^
-                    --cov-report=xml ^
-                    --cov-report=term ^
-                    --junitxml=test-results/results.xml ^
-                    -v
+                "%PYTHON%" -m venv %VENV% && ^
+                %VENV%\\Scripts\\python.exe -m pip install --upgrade pip && ^
+                %VENV%\\Scripts\\python.exe -m pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                bat '''
+                %VENV%\\Scripts\\python.exe -m pytest tests/ ^
+                --cov=app ^
+                --cov-report=xml ^
+                --cov-report=term ^
+                --junitxml=test-results/results.xml ^
+                -v
                 '''
             }
             post {
@@ -40,9 +45,9 @@ stage('Run Tests') {
         stage('Run Container (Staging)') {
             steps {
                 bat '''
-                    docker stop eco-metric-staging 2>nul || echo "No container to stop"
-                    docker rm eco-metric-staging 2>nul || echo "No container to remove"
-                    docker run -d -p 8001:8000 --name eco-metric-staging eco-metric-api:latest
+                docker stop eco-metric-staging 2>nul || echo "No container to stop"
+                docker rm eco-metric-staging 2>nul || echo "No container to remove"
+                docker run -d -p 8001:8000 --name eco-metric-staging eco-metric-api:latest
                 '''
             }
         }
