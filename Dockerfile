@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # install poetry
-RUN pip install poetry==1.8.3
+RUN pip install --upgrade pip && \
+    pip install --default-timeout=100 --retries=10 --no-cache-dir poetry==1.8.3
 
 # copy dependency files first (for caching)
 COPY pyproject.toml poetry.lock* ./
